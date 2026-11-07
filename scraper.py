@@ -101,7 +101,7 @@ def main():
     sch = preset.get("sch_names") if isinstance(preset, dict) else None
     if not isinstance(pdata, dict) or len(pdata) < 6 \
             or not isinstance(sch, dict) or not sch \
-            or not all(re.fullmatch(r"\d{1,2}\.\d", str(k)) for k in pdata):
+            or not all(re.fullmatch(r"GPV\d{1,2}\.\d", str(k)) for k in pdata):
         raise SystemExit(
             f"format drift? preset.data keys={list(pdata)[:6] if isinstance(pdata, dict) else pdata!r}")
     if not isinstance(fact.get("data"), dict) or "today" not in fact:
