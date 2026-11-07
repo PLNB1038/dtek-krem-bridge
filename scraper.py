@@ -17,6 +17,7 @@ import json
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from curl_cffi import requests
 
@@ -104,7 +105,7 @@ def main():
             "fact_today": fact_today.get(gkey) or {},
         }
 
-    now = datetime.now()
+    now = datetime.now(ZoneInfo("Europe/Kyiv"))  # з розпізнаваним зміщенням
     schedule = {
         "version": 2,
         "updated_at": now.isoformat(timespec="seconds"),
