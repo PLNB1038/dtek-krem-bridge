@@ -46,4 +46,4 @@ jobs:
           git checkout -B data
           git add -f out/schedule.json out/raw_preset.json out/raw_fact.json
           git commit -m "schedule $(date -u +'%Y-%m-%d %H:%M UTC')" || echo "no changes"
-          git push origin data
+          git push -f origin data
