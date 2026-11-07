@@ -1,0 +1,49 @@
+name: scrape
+
+# DTEK KREM schedule -> data branch. Imperva blocks home/datacenter ASNs of
+# ours, but lets GitHub runner IPs through, so the scrape must run HERE.
+# Freshness driver: GitHub cron (best-effort). A repo ping via
+# repository_dispatch (event type: scrape) forces an immediate run.
+on:
+  repository_dispatch:
+    types: [scrape]
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - run: python scraper.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: out
+          path: out/
+          retention-days: 7
+
+      - name: publish data branch
+        run: |
+          git config user.name "scraper-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -B data
+          git add out/schedule.json out/raw_api.json
+          git commit -m "schedule $(date -u +'%Y-%m-%d %H:%M UTC')" || echo "no changes"
+          git push origin data
