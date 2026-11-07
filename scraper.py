@@ -34,7 +34,10 @@ OUT.mkdir(exist_ok=True)
 
 
 def is_stub(html: str) -> bool:
-    return "Incapsula" in html or len(html) < 2000
+    # The Imperva stub is a tiny ~800-1000 byte iframe page. The real
+    # shutdowns page is ~1MB and itself references Incapsula resources,
+    # so substring checks only make sense on tiny bodies.
+    return len(html) < 2500
 
 
 def load_page(s) -> str:
