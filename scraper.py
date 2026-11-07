@@ -93,6 +93,19 @@ def main():
             json.dumps(blobs[name], ensure_ascii=False, indent=1), encoding="utf-8")
 
     preset, fact = blobs["preset"], blobs["fact"]
+    # захист від дрейфу формату: якщо сторінка змінилась і extract_js_blob витягнув
+    # чужий JSON (присвоєння не-об'єкта -> find('{') хапає найближчу чужу дужку),
+    # валідація структури відсікає його ДО запису у файли, які читає бот
+    pdata = preset.get("data") if isinstance(preset, dict) else None
+    sch = preset.get("sch_names") if isinstance(preset, dict) else None
+    if not isinstance(pdata, dict) or len(pdata) < 6 \
+            or not isinstance(sch, dict) or not sch \
+            or not all(re.fullmatch(r"\d{1,2}\.\d", str(k)) for k in pdata):
+        raise SystemExit(
+            f"format drift? preset.data keys={list(pdata)[:6] if isinstance(pdata, dict) else pdata!r}")
+    if not isinstance(fact.get("data"), dict) or "today" not in fact:
+        raise SystemExit("format drift? fact without today/data")
+
     today_ts = fact.get("today")
     fact_today = (fact.get("data") or {}).get(str(today_ts) if today_ts else "", {})
 

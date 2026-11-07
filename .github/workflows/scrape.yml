@@ -8,7 +8,8 @@ on:
   repository_dispatch:
     types: [scrape]
   schedule:
-    - cron: "*/15 * * * *"
+    # не на круглих 15-х: GitHub найбільше глитає розкладу на пікових хвилинах
+    - cron: "3,18,33,48 * * * *"
   workflow_dispatch: {}
 
 concurrency:
@@ -34,6 +35,7 @@ jobs:
       - run: python scraper.py
 
       - uses: actions/upload-artifact@v4
+        if: always()  # артефакт (out/, HTML-дебаг) потрібен і коли скрейп впав
         with:
           name: out
           path: out/
