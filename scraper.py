@@ -14,6 +14,7 @@ The shutdowns page embeds everything as JS globals:
 Output: out/schedule.json (normalized) + raw_preset.json / raw_fact.json.
 """
 import json
+import re
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
