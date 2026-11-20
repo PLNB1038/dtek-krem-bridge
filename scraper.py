@@ -105,7 +105,15 @@ def main():
         raise SystemExit(
             f"format drift? preset.data keys={list(pdata)[:6] if isinstance(pdata, dict) else pdata!r}")
     if not isinstance(fact.get("data"), dict) or "today" not in fact:
-        raise SystemExit("format drift? fact without today/data")
+        # Нічне вікно ДТЕК (після півночі приблизно до 05:00): факт вчорашній
+        # уже знято зі сторінки, сьогоднішній ще не опублікований. Це не дрейф
+        # формату: сторінка ціла, preset валідний. Виходимо зелено БЕЗ запису
+        # schedule.json - крок publish не чіпатиме гілку data, там лишається
+        # останній робочий файл, а бот сам бачить протухання (90 хв) і йде на
+        # фолбек. Справжній дрейф ламає і preset - той чек вище лишається red.
+        print("dtek fact not published yet (nightly window); keeping previous data",
+              flush=True)
+        return
 
     today_ts = fact.get("today")
     fact_today = (fact.get("data") or {}).get(str(today_ts) if today_ts else "", {})

@@ -46,6 +46,9 @@ jobs:
           git config user.name "scraper-bot"
           git config user.email "actions@users.noreply.github.com"
           git checkout -B data
-          git add -f out/schedule.json out/raw_preset.json out/raw_fact.json
+          #_glob_а_не_список: у нічному вікні scraper м'яко скіпає без
+          # schedule.json (лишає в гілці останній робочий), а raw-файли
+          # пишуться завжди - жорсткий список файлів падав би на відсутньому
+          git add -f out/*.json
           git commit -m "schedule $(date -u +'%Y-%m-%d %H:%M UTC')" || echo "no changes"
           git push -f origin data
